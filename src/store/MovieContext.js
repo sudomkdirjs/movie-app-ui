@@ -1,10 +1,18 @@
 import React from "react";
 
-const MovieContext = React.createContext({
-  items: [],
-  totalAmount: 0,
-  addItem: (item) => {},
-  removeItem: (id) => {},
-});
+const defaultFunc = () => {};
+
+export const defaultMovieState = {
+  searchValue: '',
+  movies: {},
+  totalMovies: 0,
+  selectedMovie: {},
+  setSearchValue: defaultFunc,
+  searchMovies: defaultFunc,
+  showMovieDetails: defaultFunc,
+  addMovie: defaultFunc
+};
+
+const MovieContext = React.createContext(defaultMovieState);
 
 export default MovieContext;

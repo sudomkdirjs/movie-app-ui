@@ -1,110 +1,84 @@
 import axios from 'axios';
-import { useReducer } from "react";
-import MovieContext from "./MovieContext";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import MovieContext, { defaultMovieState } from "./MovieContext";
 
 const API_KEY = process.env.REACT_APP_API_KEY || '5846a08c'; // OMDb API Key
 
-const defaultMovieState = {
-  searchValue: '',
-  movies: [],
-  totalMovies: 0,
-  selectedMovie: null,
-};
-const movieReducer = (state, action) => {
-  switch (action.type) {
-
-    case 'SET_MOVIES':
-      return Object.assign(state, {
-        movies: action.movies,
-        totalMovies: action.movies.length
-      });
-
-    case 'SET_SELECTED_MOVIE':
-      return Object.assign(state, {
-        selectedMovie: action.movie
-      });
-
-    case 'ADD_MOVIE':
-      let updatedMovies = state.movies.concat(action.movie);
-      return Object.assign(state, {
-        movies: updatedMovies,
-        totalMovies: updatedMovies.length
-      });
-
-    case 'SET_SEARCH_VALUE':
-      return Object.assign(state, {
-        searchValue: action.searchValue
-      });
-
-    default:
-        return defaultMovieState;
+const debounce = function (func, delay=1000) {
+  let timer;
+  return function () {
+      let context = this;
+      let args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+          func.apply(context, args);
+      }, delay);
   }
-  
-};
+}
 
 const MovieProvider = (props) => {
 
-  const [movieState, dispatchMovieAction] = useReducer(
-    movieReducer,
-    defaultMovieState
-  );
+  const [searchValue, setSearchValue] = useState(defaultMovieState.searchValue);
 
-  const addMovieHandler = (item) => {
-    dispatchMovieAction({ type: "ADD_MOVIE", item: item });
-  };
+  const [movies, setMovies] = useState(defaultMovieState.movies);
 
-  const searchHandler = async (searchValue) => {
-    const movies = await fetchMovies(searchValue)
-    if(movies) {
-      dispatchMovieAction({ type: "SET_MOVIES", movies });
-    }
-  };
+  const [selectedMovie, setSelectedMovie] = useState(defaultMovieState.selectedMovie);
 
-  const fetchMovies = async (searchValue) => {
+  const fetchMovies = useCallback(async () => {
     try {
       const response = await axios(
         `https://www.omdbapi.com/?apikey=${API_KEY}&s=${searchValue}`
       );
-      return response.data;
+      if (response.data.Response === 'True')
+        setMovies(response.data);
+      else
+        setMovies(defaultMovieState.searchValue);
     } catch(error) {
       console.log(error);
-      return null;
+      
     }
-  };
+  }, [searchValue]);
 
-  const showDetailHandler = async (id) => {
-    const movie = await fetchMovieDetails(id);
-    if(movie) {
-      dispatchMovieAction({ type: "SET_SELECTED_MOVIE", movie });
-    }
-  };
+  const optimizedFetchMovies =  useCallback(() => {
+    debounce(fetchMovies, 3000);
+  }, []);
 
-  const fetchMovieDetails = async (id) => {
+  useEffect(() => {
+    console.log("Movies useEffect")
+    // optimizedFetchMovies();
+    fetchMovies();
+  }, [fetchMovies]);
+
+  const fetchMovieDetails = useCallback(async () => {
     try {
       const response = await axios(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&i=${id}`
+        `https://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedMovie}`
       );
-      return response.data;
+      setSelectedMovie(response.data);
     } catch(error) {
       console.log(error);
-      return null;
+      setSelectedMovie(defaultMovieState.selectedMovie);
     }
+  }, [selectedMovie]) // if userId changes, useEffect will run again
+
+  // useEffect(() => {
+  //   console.log("Selected Movies useEffect")
+  //   debounce(fetchMovieDetails);
+  // }, [fetchMovieDetails]);
+
+  const movieDispatchContext = {
+    setSearchValue
   };
 
-  const movieContext = {
-    movies: movieState.movies,
-    totalMovies: movieState.totalMovies,
-    selectedMovie: movieState.selectedMovie,
-    searchValue: movieState.searchValue,
-    searchMovie: searchHandler,
-    setSearch: (searchValue) =>  dispatchMovieAction({ type: "SET_SEARCH_VALUE", searchValue }),
-    showDetail: showDetailHandler,
-    addMovie: addMovieHandler
+  const _movieState = {
+    searchValue,
+    movies,
+    selectedMovie
   };
 
   return (
-    <MovieContext.Provider value={movieContext}>
-      {props.children}
+    <MovieContext.Provider value={movieDispatchContext}>
+      {React.cloneElement(props.children, { movieState: _movieState })}
     </MovieContext.Provider>
   );
 };

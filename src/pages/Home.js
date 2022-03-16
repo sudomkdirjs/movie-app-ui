@@ -1,12 +1,26 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
+import SearchBox from "../components/SearchBox";
 import MovieContext from "../store/MovieContext";
 
-const Home = () => {
+const Home = ({movieState}) => {
     const movieCtx = useContext(MovieContext);
+    let { searchValue, setSearchValue } = movieCtx;
+
+    // useEffect(() => {
+    //     movieCtx.searchMovies(searchValue || 'lion');
+    //   }, []);
+
+    console.log("Home");
+
     console.log(movieCtx);
+
+    console.log(movieState);
+    
     return (
         <div>
-            <h1>Home Page</h1>
+            <SearchBox 
+                searchValue={searchValue} 
+                setSearchValue={setSearchValue}/>
         </div>
     ); 
 }

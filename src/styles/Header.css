@@ -1,51 +1,22 @@
-nav {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  padding-bottom: 30px;
-  border-bottom: 1px solid #eeee;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border: none;
-  color: white;
-  font-size: 28px;
-}
-
-.nav-item {
+.header {
+  width: 100%;
+  cursor: pointer;
+  position: fixed;
   display: flex;
   justify-content: center;
-  align-items: center;
+  text-transform: uppercase;
+  background-color: #39445a;
+  font-family: "Montserrat", sans-serif;
+  font-size: 5vw;
+  padding-bottom: 15px;
+  box-shadow: 0px 1px 5px black;
+  color: white;
+  z-index: 100;
 }
 
-li,
-:link {
-  display: inline-block;
-  
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-}
-
-.link {
-  text-decoration: none;
-  padding: 10px 5px;
-  background-color: black;
-  border-radius: 5px;
-  color: #fff;
-  transition: all ease-in-out 0.3s;
-}
-
-.link:hover {
-  background-color: white;
-  color: black;
-}
-
-li:not(:last-child) :link {
-  margin-right: 25px;
+@media (max-width: 1000px) {
+  .header {
+    padding-top: 15px;
+    font-size: 6.4vw;
+  }
 }
