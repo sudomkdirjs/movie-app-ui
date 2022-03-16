@@ -2,7 +2,10 @@ import axios from 'axios';
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import MovieContext, { defaultMovieState } from "./MovieContext";
 
-const API_KEY = process.env.REACT_APP_API_KEY || '5846a08c'; // OMDb API Key
+const API_KEY = process.env.REACT_APP_API_KEY || '44a627e9'; // OMDb API Key
+// 5846a08c my key
+
+const API_URL = `https://www.omdbapi.com/?apikey=${API_KEY}`;
 
 const debounce = function (func, delay=1000) {
   let timer;
@@ -18,26 +21,43 @@ const debounce = function (func, delay=1000) {
 
 const MovieProvider = (props) => {
 
-  const [searchValue, setSearchValue] = useState(defaultMovieState.searchValue);
+  const [search, setSearch] = useState(defaultMovieState.search);
 
   const [movies, setMovies] = useState(defaultMovieState.movies);
 
   const [selectedMovie, setSelectedMovie] = useState(defaultMovieState.selectedMovie);
 
+  const [loading, setLoading] = useState(defaultMovieState.loading);
+
+
+  const setMoviesHandler = useCallback((movies) => {
+    movies.Search.sort((a, b) => Number(b.Year) - Number(a.Year));
+    setMovies(movies);
+  }, []);
+
   const fetchMovies = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await axios(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&s=${searchValue}`
+        `${API_URL}&type=${'movie'}&s=${search.value}&page=1`
       );
-      if (response.data.Response === 'True')
-        setMovies(response.data);
-      else
-        setMovies(defaultMovieState.searchValue);
+      if (response.data.Response === 'True') {
+        setMoviesHandler(response.data);
+      }
+      else if(!search.value) {
+        setMovies(defaultMovieState.movies);
+        setSearch(defaultMovieState.search);
+      }
+      setLoading(false);
     } catch(error) {
+      setLoading(false);
       console.log(error);
-      
+      if(!search.value) {
+        setMovies(defaultMovieState.movies);
+        setSearch(defaultMovieState.search);
+      }
     }
-  }, [searchValue]);
+  }, [search.value]);
 
   const optimizedFetchMovies =  useCallback(() => {
     debounce(fetchMovies, 3000);
@@ -46,13 +66,13 @@ const MovieProvider = (props) => {
   useEffect(() => {
     console.log("Movies useEffect")
     // optimizedFetchMovies();
-    fetchMovies();
+    search.value && search.value.length > 2 && fetchMovies();
   }, [fetchMovies]);
 
   const fetchMovieDetails = useCallback(async () => {
     try {
       const response = await axios(
-        `https://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedMovie}`
+        `${API_URL}&i=${selectedMovie}`
       );
       setSelectedMovie(response.data);
     } catch(error) {
@@ -66,13 +86,65 @@ const MovieProvider = (props) => {
   //   debounce(fetchMovieDetails);
   // }, [fetchMovieDetails]);
 
+  const setSearchValueHandler = useCallback((value = '') => {
+    
+    if(!value || value.length < 3) {
+      setMovies(defaultMovieState.movies);
+      setSearch(defaultMovieState.search);
+    } else {
+      setSearch({value, page: 1});
+    }
+
+  },  [search.value]);
+
+  const fetchMoreMovies = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios(
+        `${API_URL}&type=${'movie'}&s=${search.value}&page=${search.page}`
+      );
+      if (response.data.Response === 'True') {
+        let moreMovies = {...response.data, Search: [...response.data.Search, ...movies.Search]}
+        setMoviesHandler(moreMovies);
+      }
+      else if(!search.value) {
+        setMovies(defaultMovieState.movies);
+        setSearch(defaultMovieState.search);
+      }
+      setLoading(false);
+    } catch(error) {
+      setLoading(false);
+      console.log(error);
+      if(!search.value) {
+        setMovies(defaultMovieState.movies);
+        setSearch(defaultMovieState.search);
+      }
+    }
+  }, [search.page]);
+
+  useEffect(() => {
+    console.log("More Movies useEffect")
+    // optimizedFetchMovies();
+    search.value && search.value.length > 2 && search.page > 1 && fetchMoreMovies();
+  }, [fetchMoreMovies]);
+
+  const setSearchPageHandler = useCallback((page) => {
+    console.log({page, cpage: search.page})
+    if(page === 0 || page - 1 === search.page) {
+      // fetchMoreMovies(page);
+      setSearch({...search, page});
+    }
+  }, [search.value, search.page]);
+
   const movieDispatchContext = {
-    setSearchValue
+    setSearchValue: setSearchValueHandler,
+    setSearchPage: setSearchPageHandler
   };
 
   const _movieState = {
-    searchValue,
+    search,
     movies,
+    loading,
     selectedMovie
   };
 

@@ -3,10 +3,14 @@ import React from "react";
 const defaultFunc = () => {};
 
 export const defaultMovieState = {
-  searchValue: '',
+  search: {
+    value: '',
+    page: 1
+  },
   movies: {},
   totalMovies: 0,
   selectedMovie: {},
+  loading: false,
   setSearchValue: defaultFunc,
   searchMovies: defaultFunc,
   showMovieDetails: defaultFunc,
