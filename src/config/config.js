@@ -7,3 +7,5 @@ export const uid = () => {
 
     return head + tail;
 }
+
+export const hasMovieFieldValue = (value) => value && value !== 'N/A';

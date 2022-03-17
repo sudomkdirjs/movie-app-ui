@@ -5,10 +5,8 @@ import MovieContext from "../store/MovieContext";
 
 import { CircularProgress } from "@mui/material";
 
-import { poster_unavailable } from '../config/config';
+import { poster_unavailable, hasMovieFieldValue } from '../config/config';
 import "../styles/MovieDetail.css";
-
-const hasValue = (value) => value && value !== 'N/A';
 
 const displayFields = [
     {
@@ -51,7 +49,7 @@ const displayFields = [
         label: 'Language:',
         value: 'Language'
     }
-]
+];
 
 const MovieDetail = ({movieState}) => {
   let { id } = useParams();
@@ -79,16 +77,12 @@ const MovieDetail = ({movieState}) => {
       );
   }
 
-  const fields = displayFields.filter(field => hasValue(selectedMovie[field.value]));
+  const fields = displayFields.filter(field => hasMovieFieldValue(selectedMovie[field.value]));
 
   return (
     <div className="detail-container">
       <div className="poster">
-        {hasValue(selectedMovie.Poster) ? (
-          <img src={poster_unavailable} alt={selectedMovie.Title} />
-        ) : (
-          <img src={selectedMovie.Poster} alt={selectedMovie.Title} />
-        )}
+          <img src={hasMovieFieldValue(selectedMovie.Poster) ? selectedMovie.Poster : poster_unavailable} alt={selectedMovie.Title} />
       </div>
       <div className="info">
         <div className="field">
