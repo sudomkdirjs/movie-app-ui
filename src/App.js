@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Layout from './pages/Layout';
 
-// import MovieProvider from "./store/MovieProvider";
 import { routes } from './routes';
 
 import './styles/App.css';
