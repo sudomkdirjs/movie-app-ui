@@ -9,7 +9,7 @@ const SearchBox = ({searchValue, setSearchValue}) => {
     }
 
     return (
-        <div style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center', margin: '1rem 1rem'}}>
+        <div style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center'}}>
             <Paper
                 component=""
                 sx={{ p: '1rem', width: 500 }}
