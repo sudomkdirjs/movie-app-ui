@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import MovieContext, { defaultMovieState } from "./MovieContext";
 
 const API_KEY = process.env.REACT_APP_API_KEY || '44a627e9'; // OMDb API Key
-// 5846a08c own
+// 5846a08c
 // b57e0c63
 
 const API_URL = `https://www.omdbapi.com/?apikey=${API_KEY}`;
@@ -70,23 +70,6 @@ const MovieProvider = (props) => {
     search.value && search.value.length > 2 && fetchMovies();
   }, [fetchMovies]);
 
-  // const fetchMovieDetails = useCallback(async () => {
-  //   try {
-  //     const response = await axios(
-  //       `${API_URL}&i=${selectedMovie}`
-  //     );
-  //     setSelectedMovie(response.data);
-  //   } catch(error) {
-  //     console.log(error);
-  //     setSelectedMovie(defaultMovieState.selectedMovie);
-  //   }
-  // }, [selectedMovie]) // if userId changes, useEffect will run again
-
-  // useEffect(() => {
-  //   console.log("Selected Movies useEffect")
-  //   debounce(fetchMovieDetails);
-  // }, [fetchMovieDetails]);
-
   const setSearchValueHandler = useCallback((value = '') => {
     
     if((!value || value.length < 3) && movies.Search && movies.Search.length > 0) {
@@ -145,15 +128,16 @@ const MovieProvider = (props) => {
       const response = await axios(
         `${API_URL}&type=${'movie'}&i=${id}`
       );
-      setSelectedMovie(response.data);
+      if (response.data.Response === 'False') {
+        setSelectedMovie(defaultMovieState.selectedMovie);
+      } else {
+        setSelectedMovie(response.data);
+      }
       setLoading(false);
     } catch(error) {
       setLoading(false);
       console.log(error);
-      // if(!search.value) {
-      //   setMovies(defaultMovieState.movies);
-      //   setSearch(defaultMovieState.search);
-      // }
+      setSelectedMovie(defaultMovieState.selectedMovie);
     }
   }, []);
 

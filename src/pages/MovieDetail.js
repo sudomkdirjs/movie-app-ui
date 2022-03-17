@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import MovieContext from "../store/MovieContext";
 
-import { CircularProgress, LinearProgress } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 
 import { poster_unavailable } from '../config/config';
 import "../styles/MovieDetail.css";
@@ -72,6 +72,11 @@ const MovieDetail = ({movieState}) => {
         <div className="field">
           <div className="label">
             IMDB Rating: <p className="label-p">{selectedMovie.imdbRating}</p>
+          </div>
+        </div>
+        <div className="field">
+          <div className="label">
+            Actor(s): <p className="label-p">{selectedMovie.Actors}</p>
           </div>
         </div>
         <div className="field">
