@@ -4,8 +4,7 @@ import MovieList from "../components/MovieList";
 import MovieContext from "../store/MovieContext";
 
 const Home = ({movieState}) => {
-    const movieCtx = useContext(MovieContext);
-    let { setSearchValue, setSearchPage } = movieCtx;
+    const { setSearchValue, setSearchPage } = useContext(MovieContext);
 
     let { search, movies, loading } = movieState;
 

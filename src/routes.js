@@ -6,14 +6,12 @@ export const routes = [
     path: "/",
     exact: true,
     component: <Home />,
-    title: "Home",
-    isHeaderElement: true,
+    title: "Home"
   },
   {
     path: "/movies/:id",
     exact: false,
     component: <MovieDetail />,
-    title: "MovieDetail",
-    isHeaderElement: false,
+    title: "MovieDetail"
   }
 ];
