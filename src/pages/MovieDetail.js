@@ -71,7 +71,7 @@ const MovieDetail = ({movieState}) => {
 
   if (loading) {
       return (
-        <div style={{marginTop: '3rem', textAlign: 'center'}}>
+        <div className='circular-loader'>
             <CircularProgress />
         </div>
       );

@@ -1,0 +1,27 @@
+
+
+.search-box-container {
+    display: flex;
+    justify-content: space-around;
+    justify-items: center;
+    /* margin: 1rem 1rem; */
+    margin-top: 1rem;
+}
+
+.add-movie-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+    /* max-width: 12rem; */
+}
+
+@media screen and (max-width: 800px) {
+    .search-box-container {
+        flex-direction: column;
+    }
+
+    .add-movie-button {
+        margin-top: 1rem;
+    }
+}

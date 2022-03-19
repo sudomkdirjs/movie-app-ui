@@ -1,151 +1,297 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import {Button, Dialog, DialogActions, 
+    DialogContent, DialogContentText, DialogTitle, Box, TextField} from '@mui/material';
 
-// import { useCookies } from 'react-cookie';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { DatePicker } from '@mui/lab';
+import enLocale from 'date-fns/locale/en-US';
 
-function MovieForm(props) {
-  const [title, setTitle] = useState('');
-  const [year, setYear] = useState(0);
-  const [director, setDirector] = useState('');
-  const [genre, setGenre] = useState('');
-  const [rated, setRated] = useState('');
-  const [plot, setPlot] = useState('');
-  const [released_on, setReleasedOn] = useState('');
-//   const [token] = useCookies(['movieapp-token']);
+import { uid } from '../config/config';
 
-//   useEffect(() => {
-//     setTitle(props.movie.title);
-//     setYear(props.movie.year);
-//     setDirector(props.movie.director);
-//     setGenre(props.movie.genre);
-//     setRated(props.movie.rated);
-//     setPlot(props.movie.plot);
-//     setReleasedOn(props.movie.released_on);
-//   }, []);
+const defaultMovie = {
+    Title: "",
+    Year: "",
+    Released: "",
+    Runtime: "",
+    Genre: "",
+    Director: "",
+    Writer: "",
+    Actors: "",
+    Plot: "",
+    Language: "",
+    Country: "",
+    Awards: "",
+    Poster: "",
+    imdbRating: "",
+    imdbID: uid(),
+    Type: "movie"
+};
 
-//   const updateClicked = () => {
-//     API.updateMovie(
-//       props.movie.id,
-//       {
-//         title,
-//         year,
-//         director,
-//         genre,
-//         rated,
-//         plot,
-//         released_on,
-//       },
-//       token['movieapp-token']
-//     )
-//       .then((resp) => props.updatedMovie(resp))
-//       .catch((err) => console.log(err));
-//   };
+export default function MovieForm({shouldShowFormDialog: open, setFormDialogState}) {
 
-//   const createClicked = () => {
-//     API.createMovie(
-//       {
-//         title,
-//         year,
-//         director,
-//         genre,
-//         rated,
-//         plot,
-//         released_on,
-//       },
-//       token['movieapp-token']
-//     )
-//       .then((resp) => props.movieCreated(resp))
-//       .catch((err) => console.log(err));
-//   };
+    const fieldRef = useRef(null);
+    const [ movie, setMovie ] = useState(defaultMovie);
 
-  const isDisabled =
-    title.length === 0 ||
-    year < 1900 ||
-    director.length === 0 ||
-    genre.length === 0 ||
-    rated.length === 0 ||
-    plot.length === 0 ||
-    released_on.length !== 10;
+    useEffect(() => {
+        setMovie(defaultMovie);
+    }, [open]);
 
-  return (
-    <React.Fragment>
+    const handleClose = (_, reason) => {
+        if (!["backdropClick", 'escapeKeyDown'].includes(reason) ) {
+            setFormDialogState(false);
+        }
+    }
+
+    const setMovieValue = (value, property) => {
+        setMovie({...movie, [property]: value});
+    }
+
+    const handleSave = () => {
+
+    }
+
+    const handleEntering = () => {
+        if (fieldRef.current != null) {
+            fieldRef.current.focus();
+        }
+    };
+
+    const renderDatePickerInput = (params) => {
+        return (
+            <TextField 
+                {...params}
+                fullWidth
+                margin="dense" 
+                variant="standard" 
+                placeholder="2014" 
+                error={null} 
+                helperText={null} />
+        );
+    }
+
+    const isDisabled =
+        movie.Title.length === 0 ||
+        movie.Year < 1900 ||
+        movie.Director.length === 0 ||
+        movie.Genre.length === 0 ||
+        movie.Plot.length === 0 ||
+        movie.Released.length === 10;
+
+    return (
         <div>
-          <label htmlFor="title">Title</label>
-          <br />
-          <input
-            id="title"
-            type="text"
-            placeholder="Terminator"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          ></input>
-          <br />
-          <label htmlFor="year">Year</label>
-          <br />
-          <input
-            id="year"
-            type="integer"
-            placeholder="2020"
-            value={year}
-            onChange={(event) => setYear(event.target.value)}
-          ></input>
-          <br />
-          <label htmlFor="director">Director</label>
-          <br />
-          <input
-            id="director"
-            type="text"
-            placeholder="James Cameron"
-            value={director}
-            onChange={(event) => setDirector(event.target.value)}
-          ></input>
-          <br />
-          <label htmlFor="genre">Genre</label>
-          <br />
-          <input
-            id="genre"
-            type="text"
-            placeholder="Action, Sci-Fi"
-            value={genre}
-            onChange={(event) => setGenre(event.target.value)}
-          ></input>
-          <br />
-          <label htmlFor="rated">Rated</label>
-          <br />
-          <input
-            id="rated"
-            type="text"
-            placeholder="PG-13"
-            value={rated}
-            onChange={(event) => setRated(event.target.value)}
-          ></input>
-          <br />
-          <label htmlFor="plot">Plot</label>
-          <br />
-          <textarea
-            id="plot"
-            type="text"
-            placeholder="A harrowing tale of..."
-            value={plot}
-            onChange={(event) => setPlot(event.target.value)}
-          ></textarea>
-          <br />
-          <label htmlFor="released_on">Release On</label>
-          <br />
-          <input
-            id="released_on"
-            type="text"
-            placeholder="2020-12-23"
-            value={released_on}
-            onChange={(event) => setReleasedOn(event.target.value)}
-          ></input>
-          <br />
-          
-            <button onClick={() => {}} disabled={isDisabled}>
-                Create
-            </button>
+        <Dialog 
+            open={open} 
+            onClose={handleClose} 
+            keepMounted 
+            TransitionProps={{ onEntering: handleEntering }}>
+            <DialogTitle>Add Movie</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                
+                </DialogContentText>
+                <LocalizationProvider dateAdapter={AdapterDateFns} locale={enLocale}>
+                    {/* <Box spacing={3}> */}
+                        <TextField
+                            ref={fieldRef}
+                            autoFocus
+                            margin="dense"
+                            id="Title"
+                            label="Title"
+                            placeholder="Interstellar"
+                            type="text"
+                            value={movie.Title}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Title');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <DatePicker
+                            views={['year']}
+                            id="Year"
+                            label="Year"
+                            minDate={new Date('1900-01-01')}
+                            maxDate={new Date()}
+                            value={movie.Year}
+                            onChange={(newValue) => {
+                                setMovieValue(newValue, 'Year');
+                            }}
+                            renderInput={renderDatePickerInput}
+                        />
+                        <DatePicker
+                            views={['day', 'month', 'year']}
+                            id="Released"
+                            label="Released"
+                            minDate={new Date('1900-01-01')}
+                            maxDate={new Date()}
+                            value={movie.Released}
+                            onChange={(newValue) => {
+                                setMovieValue(newValue, 'Released');
+                            }}
+                            renderInput={renderDatePickerInput}
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Runtime"
+                            label="Runtime"
+                            placeholder='169 min'
+                            type="text"
+                            value={movie.Runtime}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Runtime');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Genre"
+                            label="Genre"
+                            placeholder='Adventure, Drama, Sci-Fi'
+                            type="text"
+                            value={movie.Genre}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Genre');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Director"
+                            label="Director"
+                            placeholder='Christopher Nolan'
+                            type="text"
+                            value={movie.Director}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Director');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Writer"
+                            label="Writer"
+                            placeholder='Jonathan Nolan, Christopher Nolan'
+                            type="text"
+                            value={movie.Writer}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Writer');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Actors"
+                            label="Actors"
+                            placeholder='Matthew McConaughey, Anne Hathaway'
+                            type="text"
+                            value={movie.Actors}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Actors');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Plot"
+                            label="Plot"
+                            placeholder='A team of explorers travel through a wormhole'
+                            type="text"
+                            value={movie.Plot}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Plot');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Language"
+                            label="Language"
+                            placeholder='English'
+                            type="text"
+                            value={movie.Language}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Language');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Country"
+                            label="Country"
+                            placeholder='United States'
+                            type="text"
+                            value={movie.Country}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Country');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Awards"
+                            label="Awards"
+                            placeholder='Won 1 Oscar.'
+                            type="text"
+                            value={movie.Awards}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Awards');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="Poster"
+                            label="Poster"
+                            type="text"
+                            value={movie.Poster}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'Poster');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="imdbRating"
+                            label="IMDB Rating"
+                            placeholder='8.6'
+                            type="text"
+                            value={movie.imdbRating}
+                            onChange={(event) => {
+                                setMovieValue(event.target.value, 'imdbRating');
+                            }}
+                            fullWidth
+                            variant="standard"
+                        />
+                    {/* </Box> */}
+                </LocalizationProvider>
+            </DialogContent>
+            <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button disabled={isDisabled} onClick={handleSave}>Add Movie</Button>
+            </DialogActions>
+        </Dialog>
         </div>
-    </React.Fragment>
-  );
+    );
 }
-
-export default MovieForm;

@@ -1,0 +1,13 @@
+.list-movie {
+    margin-top: 2rem;
+}
+
+.list-movie-search-placeholder, .list-movie-scroll-placeholder {
+    margin-top: 5rem;
+    text-align: center;
+    color: #999;
+}
+
+.list-movie-scroll-placeholder {
+    margin-top: 2rem;
+}
