@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { poster_unavailable, hasMovieFieldValue } from '../config/config';
 import '../styles/MovieCards.css';
 
-const Card = ({ movies }) => {
+const MovieCards = ({ movies }) => {
     const history = useHistory();
     const handleClickMovie = (id) => {
         history.push(`movies/${id}`);
@@ -12,8 +12,8 @@ const Card = ({ movies }) => {
     return (
 
         <div className="cardlist__movies">
-            {movies.filter(movie => movie.Poster).map((movie, index) => (
-                <div className="card" key={index} onClick={() => handleClickMovie(movie.imdbID)}>
+            {movies.map((movie) => (
+                <div className="card" key={movie.imdbRating} onClick={() => handleClickMovie(movie.imdbID)}>
                     <img
                         className="movie__image"
                         src={hasMovieFieldValue(movie.Poster) ? movie.Poster : poster_unavailable}
@@ -30,4 +30,4 @@ const Card = ({ movies }) => {
     )
 }
 
-export default Card;
+export default MovieCards;

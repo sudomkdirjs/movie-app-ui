@@ -1,24 +1,15 @@
 import axios from 'axios';
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { forwardRef, useState, useCallback, useEffect } from "react";
 import MovieContext, { defaultMovieState } from "./MovieContext";
 
-const API_KEY = process.env.REACT_APP_API_KEY || '44a627e9'; // OMDb API Key
-// 5846a08c
-// b57e0c63
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-const API_URL = `https://www.omdbapi.com/?apikey=${API_KEY}`;
+const Alert = forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
-const debounce = function (func, delay=1000) {
-  let timer;
-  return function () {
-      let context = this;
-      let args = arguments;
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-          func.apply(context, args);
-      }, delay);
-  }
-}
+const API_URL = process.env.API_URL || 'http://localhost:5000/movies';
 
 const MovieProvider = (props) => {
 
@@ -30,90 +21,88 @@ const MovieProvider = (props) => {
 
   const [loading, setLoading] = useState(defaultMovieState.loading);
 
+  const [toast, setToast] = useState(defaultMovieState.toast);
 
-  const setMoviesHandler = useCallback((movies) => {
-    movies.Search.sort((a, b) => Number(b.Year) - Number(a.Year));
+
+  const sortAndSetMovies = useCallback((movies) => {
+    movies.movies.sort((a, b) => Number(b.Year) - Number(a.Year));
     setMovies(movies);
   }, []);
+
+  const searchMoviesErrorHandler = () => {
+    setMovies(defaultMovieState.movies);
+    setSearch(defaultMovieState.search);
+  }
 
   const fetchMovies = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios(
-        `${API_URL}&type=${'movie'}&s=${search.value}&page=1`
+        `${API_URL}?s=${search.value}&page=1`
       );
-      if (response.data.Response === 'True') {
-        setMoviesHandler(response.data);
+      if (response.data.status) {
+        setMovies(response.data.payload);
+        search.page !== 1 && setSearch({...search, page: 1});
       }
       else if(!search.value) {
-        setMovies(defaultMovieState.movies);
-        setSearch(defaultMovieState.search);
+        searchMoviesErrorHandler();
       }
       setLoading(false);
     } catch(error) {
       setLoading(false);
       console.log(error);
       if(!search.value) {
+        searchMoviesErrorHandler();
+      } else {
         setMovies(defaultMovieState.movies);
-        setSearch(defaultMovieState.search);
       }
     }
   }, [search.value]);
 
-  const optimizedFetchMovies =  useCallback(() => {
-    debounce(fetchMovies, 3000);
-  }, []);
-
   useEffect(() => {
     console.log("Movies useEffect")
-    // optimizedFetchMovies();
     search.value && search.value.length > 2 && fetchMovies();
   }, [fetchMovies]);
 
   const setSearchValueHandler = useCallback((value = '') => {
     
-    if((!value || value.length < 3) && movies.Search && movies.Search.length > 0) {
+    if((!value || value.length < 3) && movies.movies && movies.movies.length > 0) {
       setMovies(defaultMovieState.movies);
     }
     setSearch({value, page: 1});
 
-  },  [search.value, movies.Search]);
+  },  [search.value, movies.movies]);
 
   const fetchMoreMovies = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios(
-        `${API_URL}&type=${'movie'}&s=${search.value}&page=${search.page}`
+        `${API_URL}?s=${search.value}&page=${search.page}`
       );
-      if (response.data.Response === 'True') {
-        let moreMovies = {...response.data, Search: [...response.data.Search, ...movies.Search]}
-        setMoviesHandler(moreMovies);
+      if (response.data.status) {
+        let moreMovies = {...response.data.payload, movies: [...response.data.payload.movies, ...movies.movies]}
+        sortAndSetMovies(moreMovies);
       }
       else if(!search.value) {
-        setMovies(defaultMovieState.movies);
-        setSearch(defaultMovieState.search);
+        searchMoviesErrorHandler();
       }
       setLoading(false);
     } catch(error) {
       setLoading(false);
       console.log(error);
       if(!search.value) {
-        setMovies(defaultMovieState.movies);
-        setSearch(defaultMovieState.search);
+        searchMoviesErrorHandler();
       }
     }
   }, [search.page]);
 
   useEffect(() => {
     console.log("More Movies useEffect")
-    // optimizedFetchMovies();
     search.value && search.value.length > 2 && search.page > 1 && fetchMoreMovies();
   }, [fetchMoreMovies]);
 
   const setSearchPageHandler = useCallback((page) => {
-    console.log({page, cpage: search.page})
     if(page === 0 || page - 1 === search.page) {
-      // fetchMoreMovies(page);
       setSearch({...search, page});
     }
   }, [search.value, search.page]);
@@ -126,12 +115,12 @@ const MovieProvider = (props) => {
     try {
       setLoading(true);
       const response = await axios(
-        `${API_URL}&type=${'movie'}&i=${id}`
+        `${API_URL}/${id}`
       );
-      if (response.data.Response === 'False') {
-        setSelectedMovie(defaultMovieState.selectedMovie);
+      if (response.data.status) {
+        setSelectedMovie(response.data.payload);
       } else {
-        setSelectedMovie(response.data);
+        setSelectedMovie(defaultMovieState.selectedMovie);
       }
       setLoading(false);
     } catch(error) {
@@ -141,10 +130,40 @@ const MovieProvider = (props) => {
     }
   }, []);
 
+  const addMovieHandler = useCallback(async (movie, callback) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(API_URL, movie);
+      if (response.data.status) {
+        search.value && search.value.length > 2 && fetchMovies();
+        setToast({open: true, message: 'Movie Added Successfully!', severity: 'success'});
+      } else {
+        setToast({open: true, message: 'Error while adding Movie!', severity: 'error'});
+      }
+      
+    } catch(error) {
+      console.log(error);
+      setToast({open: true, message: 'Error while adding Movie!', severity: 'error'});
+      // setSelectedMovie(defaultMovieState.selectedMovie);
+    } finally {
+      setLoading(false);
+      callback && callback();
+    }
+  }, [search.value]);
+
+  const handleToastClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setToast(defaultMovieState.toast);
+  };
+
   const movieDispatchContext = {
     setSearchValue: setSearchValueHandler,
     setSearchPage: setSearchPageHandler,
-    setSelectedMovie: setSelectedMovieHandler
+    setSelectedMovie: setSelectedMovieHandler,
+    addMovie: addMovieHandler
   };
 
   const _movieState = {
@@ -156,7 +175,17 @@ const MovieProvider = (props) => {
 
   return (
     <MovieContext.Provider value={movieDispatchContext}>
-      {React.cloneElement(props.children, { movieState: _movieState })}
+      <div style={loading ? {pointerEvents: 'none'} : {}}>
+        {React.cloneElement(props.children, { movieState: _movieState })}
+        <Snackbar open={toast.open} autoHideDuration={5000} 
+          onClose={handleToastClose}
+          style={{marginTop: '5.8rem'}}
+          anchorOrigin={{vertical: 'top', horizontal: 'right'}}>
+          <Alert onClose={handleToastClose} severity={toast.severity} sx={{ width: '100%' }}>
+            {toast.message}
+          </Alert>
+        </Snackbar>
+      </div>
     </MovieContext.Provider>
   );
 };
