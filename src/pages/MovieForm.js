@@ -115,7 +115,13 @@ export default function MovieForm({shouldShowFormDialog: open, loading, setFormD
     }
 
     const handleSave = () => {
-        addMovie({...movie, Year: movie.Year.slice(0,4)}, handleClose);
+        let year = movie.Year;
+        if (typeof year === 'object') {
+            year = movie.Year.getFullYear();
+        } else if (typeof year === 'string') {
+            year = movie.Year.slice(0, 4);
+        }
+        addMovie({...movie, Year: year}, handleClose);
     }
 
     const handleEntering = () => {
