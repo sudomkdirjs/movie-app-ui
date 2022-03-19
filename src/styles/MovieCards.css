@@ -46,6 +46,8 @@
     /* height: 500px;
     width: 350px; */
     border-radius: 10px;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .flex__card {
@@ -81,14 +83,31 @@
     color: white;
 }
 
-.header {
+/* .header {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     padding: 20px;
-}
+} */
 
 .name {
     font-size: 20px;
     padding: 10px;
+}
+
+
+@media screen and (max-width: 800px) {
+    .cardlist__movies {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        -webkit-box-shadow: 5px 5px 32px 5px rgba(0,0,0,0.43); 
+        box-shadow: 5px 5px 32px 5px rgba(0,0,0,0.43);
+    }
+     
+    .card {
+        width: 85%;
+        margin-left: 0;
+    }
 }

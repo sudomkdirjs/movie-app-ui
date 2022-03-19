@@ -2,10 +2,7 @@ import MovieCards from './MovieCards';
 import { CircularProgress, Grid, Skeleton } from "@mui/material";
 import { Waypoint } from 'react-waypoint';
 
-const styles = {
-    searchPlaceholder: {marginTop: '5rem', textAlign: 'center', color: '#999'},
-    scrollPlaceholder: {marginTop: '2rem', textAlign: 'center', color: '#999'}
-};
+import '../styles/MovieList.css';
 
 const renderSkeletons = () => {
     return (
@@ -13,7 +10,7 @@ const renderSkeletons = () => {
             container 
             spacing={2}
             direction="row"
-            justifyContent="space-between"
+            justifyContent="center"
             alignItems="center">
             <Grid item xs={10} md={6}>
                 <Skeleton variant="rectangular" height={200} />
@@ -34,7 +31,7 @@ export default function MovieList({movies, searchPage, loading, setSearchPage}) 
 
     if (movieList.length === 0) {
         return (
-            <div style={styles.searchPlaceholder}>
+            <div className='list-movie-search-placeholder'>
                 { !loading && <div>No Movies Found!</div> }
                 { loading && renderSkeletons()}
             </div>
@@ -48,7 +45,7 @@ export default function MovieList({movies, searchPage, loading, setSearchPage}) 
                 {loading && <CircularProgress />}
             </div>
             {!loading && hasMoreMovies &&  <div style={{marginTop: '5rem'}}><Waypoint onEnter={loadMoreFunc}/></div>}
-            {!loading && !hasMoreMovies &&  <div style={styles.scrollPlaceholder}>No more movies to list!</div>}
+            {!loading && !hasMoreMovies &&  <div className='list-movie-scroll-placeholder'>No more movies to list!</div>}
         </div>
     );
 }

@@ -1,13 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 import SearchBox from "../components/SearchBox";
 import MovieList from "../components/MovieList";
 import MovieContext from "../store/MovieContext";
-import { Link } from 'react-router-dom';
 
-import Form from "./Form";
+import MovieForm from "./MovieForm";
 
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+
+import "../styles/Home.css";
 
 const Home = ({movieState}) => {
     const { setSearchValue, setSearchPage } = useContext(MovieContext);
@@ -21,18 +22,20 @@ const Home = ({movieState}) => {
     console.log(movieState);
     
     return (
-        <div>
-            <div style={{display: 'flex', justifyContent: 'space-around', justifyItems: 'center',  margin: '1rem 1rem'}}>
+        <Fragment>
+            <div className='search-box-container'>
                 <SearchBox
                     searchValue={search.value} 
                     setSearchValue={setSearchValue}/>
-                <Fab variant="extended" style={{zIndex: 10, marginTop: '1.2rem'}}
-                    onClick={() => setFormDialogState(true)}>
-                    Add Movie
-                    <AddIcon sx={{ ml: 1 }} />
-                </Fab>
+                <div className='add-movie-button'>
+                    <Fab variant="extended" style={{zIndex: 10}}
+                        onClick={() => setFormDialogState(true)}>
+                        <span  style={{marginTop: '0.1rem'}}>Add Movie</span>
+                        <AddIcon sx={{ ml: 1 }} />
+                    </Fab>
+                </div>
             </div>
-            <Form
+            <MovieForm
                 shouldShowFormDialog={shouldShowFormDialog}
                 setFormDialogState={setFormDialogState}/>
             <MovieList
@@ -40,7 +43,7 @@ const Home = ({movieState}) => {
                 searchPage={search.page}
                 loading={loading}
                 setSearchPage={setSearchPage}/>
-        </div>
+        </Fragment>
     ); 
 }
 
