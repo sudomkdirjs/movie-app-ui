@@ -5,9 +5,17 @@ export const defaultMovieState = {
     value: '',
     page: 1
   },
-  movies: {},
+  movies: {
+    movies: [],
+    totalResults: 0
+  },
   selectedMovie: {},
-  loading: false
+  loading: false,
+  toast: {
+    open: false,
+    message: '',
+    severity: 'success'
+  }
 };
 
 const MovieContext = React.createContext(defaultMovieState);

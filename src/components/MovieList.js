@@ -23,8 +23,8 @@ const renderSkeletons = () => {
 }
 
 export default function MovieList({movies, searchPage, loading, setSearchPage}) {
-    const { Search: movieList = [], totalResults = 0, Response = 'False' } = movies;
-    const hasMoreMovies = Response === 'True' && (Number(totalResults) > movieList.length);
+    const { movies: movieList = [], totalResults = 0 } = movies;
+    const hasMoreMovies = totalResults > movieList.length;
     const loadMoreFunc = () => {
         hasMoreMovies && setSearchPage(searchPage + 1);
     }

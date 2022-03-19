@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import "../styles/Home.css";
 
 const Home = ({movieState}) => {
-    const { setSearchValue, setSearchPage } = useContext(MovieContext);
+    const { setSearchValue, setSearchPage, addMovie } = useContext(MovieContext);
 
     const [shouldShowFormDialog, setFormDialogState] = useState(false);
 
@@ -37,7 +37,9 @@ const Home = ({movieState}) => {
             </div>
             <MovieForm
                 shouldShowFormDialog={shouldShowFormDialog}
-                setFormDialogState={setFormDialogState}/>
+                loading={loading}
+                setFormDialogState={setFormDialogState}
+                addMovie={addMovie}/>
             <MovieList
                 movies={movies}
                 searchPage={search.page}

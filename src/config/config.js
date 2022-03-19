@@ -9,3 +9,15 @@ export const uid = () => {
 }
 
 export const hasMovieFieldValue = (value) => value && value !== 'N/A';
+
+export const debounce = function (func, delay=1000) {
+    let timer;
+    return function () {
+        let context = this;
+        let args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(context, args);
+        }, delay);
+    }
+}
